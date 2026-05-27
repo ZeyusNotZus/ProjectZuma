@@ -122,7 +122,7 @@ class Player:
         self._h = h
         self._shoot_cooldown = cooldown
         self._last_shot = -100
-
+        self._loaded_bullet: int = self.get_bullet()
 
     def can_shoot(self) -> bool:
         return pyxel.frame_count - self._last_shot >= self._shoot_cooldown
@@ -130,6 +130,10 @@ class Player:
     def cooldown(self):
         self._last_shot = pyxel.frame_count
     
+    def get_bullet(self) -> int:
+        bullet_color: int = random.choice([1, 2, 7, 8, 9, 11])
+        return bullet_color
+
     def update(self, bullets_list: list[Bullet]):
         self._speed: float = 1.0
 
@@ -163,15 +167,26 @@ class Player:
                 target_y: int = pyxel.mouse_y + 8
 
                 angle:float = math.atan2(target_y - player_center_y, target_x - player_center_x)
-                bullet_color: int = random.choice([1, 2, 8, 10, 11])
+                shoot_bullet = Bullet(player_center_x, player_center_y, angle, self._loaded_bullet)
+                bullets_list.append(shoot_bullet)
+                self._loaded_bullet = self.get_bullet()
 
-                new_bullet = Bullet(player_center_x, player_center_y, angle, bullet_color)
-                bullets_list.append(new_bullet)
 
     def draw(self):
+        sprite_map = {
+        1: 0,
+        2: 16,
+        7: 32,
+        8: 48,
+        9: 64,
+        11: 80 
+        }
+
+        sprite = sprite_map.get(self._loaded_bullet, 0)
+
         pyxel.blt(
             self._x, self._y, 0,
-            0, 0,
+            sprite, 0,
             self._w, self._h, 0
         )
 

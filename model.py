@@ -1,11 +1,10 @@
-
 import random
 import maps
 from entities import Bullet, Enemy, Player, Crosshair, SimpleEnemy
 
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
-SCREEN_WIDTH: int = 128
+SCREEN_WIDTH: int = 256
 SCREEN_HEIGHT: int = 128
 TILE_SIZE: int = 16
 GRID_WIDTH: int = SCREEN_WIDTH // TILE_SIZE
@@ -18,12 +17,12 @@ class Model:
         self._bullets: list[Bullet] = []
         self._is_game_over: bool = False
 
-        self._map = maps.MAP_1
+        self._map = maps.MAP_2
 
         self._start_tiles = self.find_all_start_tiles()
         self._end_tile = self.find_tile_coordinate('E')
 
-        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)     
+        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25, 27)     
         self._crosshair = Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
     def find_tile_coordinate(self, character: str) -> tuple[int, int]:
@@ -116,7 +115,7 @@ class Model:
         if not self._start_tiles:
             return
         
-        enemy_color: int = random.choice([1, 2, 8, 10, 11])
+        enemy_color: int = random.choice([1, 2, 7, 8, 9, 11])
 
         spawn_tile = random.choice(self._start_tiles)
         spawn_x, spawn_y = spawn_tile

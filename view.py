@@ -1,8 +1,9 @@
 import pyxel
 from classes import DrawHandler, ModelData, UpdateHandler
+
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
-SCREEN_WIDTH: int = 128
+SCREEN_WIDTH: int = 256
 SCREEN_HEIGHT: int = 128
 TILE_SIZE: int = 16
 
@@ -35,7 +36,7 @@ class View:
                     case 'E':
                         pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 8)
                     case 'P':
-                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 15)
+                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 0)
                     case '.':
                         pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 13)
                     case _:
