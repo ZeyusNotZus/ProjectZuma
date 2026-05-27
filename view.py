@@ -19,10 +19,6 @@ class View:
 
     def draw_game(self, exp: int, player, enemies: list, bullets: list, crosshair, map_data: list):
         pyxel.cls(0)
-        
-        # score
-
-        pyxel.text(5, 5, "EXP:{:04}".format(exp), 6)
 
         # map
 
@@ -55,3 +51,8 @@ class View:
         # crosshair
 
         crosshair.draw()
+
+                
+        # score
+
+        pyxel.text(100, 5, "EXP:{:02}".format(exp), 6)

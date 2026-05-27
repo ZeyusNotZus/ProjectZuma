@@ -65,7 +65,7 @@ class Model:
         return self._bullets
     
     @property
-    def crosshair(self) -> list:
+    def crosshair(self):
         return self._crosshair
     
     @property
@@ -126,37 +126,22 @@ class Model:
         self._enemies.append(enemy)
     
     def check_collisions(self):
-        
-        # Square collision logic
-
-        # for bullet in self._bullets[:]:
-        #     for enemy in self._enemies[:]:
-        #         if (enemy.x <= bullet.x <= enemy.x + enemy.w and
-        #             enemy.y <= bullet.y <= enemy.y + enemy.h):
-                    
-        #             if bullet in self._bullets:
-        #                 self._bullets.remove(bullet)
-        #             if enemy in self._enemies:
-        #                 self._enemies.remove(enemy)
-                    
-        #             self._exp += 1
-        #             break
-        
-
-        # Circle collision logic
-
         for bullet in self._bullets[:]:
             for enemy in self._enemies[:]:
-                dx = bullet.x - enemy.x
-                dy = bullet.y - enemy.y
-                distance_squared = (dx ** 2) + (dy ** 2)
-                collision_limit_squared = 100 
                 
-                if distance_squared <= collision_limit_squared and bullet.color == enemy.color:
-                    if bullet in self._bullets:
-                        self._bullets.remove(bullet)
-                    if enemy in self._enemies:
-                        self._enemies.remove(enemy)
+                enemy_left = enemy.tile_x * TILE_SIZE
+                enemy_right = enemy_left + TILE_SIZE
+                enemy_top = enemy.tile_y * TILE_SIZE
+                enemy_bottom = enemy_top + TILE_SIZE
+                
+                if (enemy_left <= bullet.x <= enemy_right and
+                    enemy_top <= bullet.y <= enemy_bottom):
                     
-                    self._exp += 1
-                    break
+                    if bullet.color == enemy.color:
+                        if bullet in self._bullets: 
+                            self._bullets.remove(bullet)
+                        if enemy in self._enemies: 
+                            self._enemies.remove(enemy)
+                        
+                        self._exp += 1
+                        break

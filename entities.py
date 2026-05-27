@@ -5,11 +5,21 @@ import random
 TILE_SIZE: int = 16
 
 class Ally:
-    def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
+    def __init__(self, x: float, y: float, cooldown: int = 0, w: int = 16, h: int = 16):
         self._x = x
         self._y = y
         self._w = w  # size of sprite is 16x16
         self._h = h
+        self._shoot_cooldown = cooldown
+        self._last_shot = -100
+
+        ...
+
+    def can_shoot(self) -> bool:
+        return pyxel.frame_count - self._last_shot >= self._shoot_cooldown
+    
+    def cooldown(self):
+        self._last_shot = pyxel.frame_count
 
     def update(self):
         ...
@@ -110,19 +120,42 @@ class Player(Ally):
     
     def update(self, bullets_list: list):
         super().update()
+        self._speed: float = 1.0
 
+        dx = 0
+        dy = 0
+
+        # movement
+        if pyxel.btn(pyxel.KEY_W):
+            dy -= self._speed
+        if pyxel.btn(pyxel.KEY_S):
+            dy += self._speed
+        if pyxel.btn(pyxel.KEY_A):
+            dx -= self._speed
+        if pyxel.btn(pyxel.KEY_D):
+            dx += self._speed
+
+        if dx != 0:
+            self._x += dx
+                
+        if dy != 0:
+            self._y += dy
+
+        # shooting
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-            player_center_x = self._x + self._w / 2
-            player_center_y = self._y + self._h / 2
+            if self.can_shoot():
+                self.cooldown()
+                player_center_x = self._x + self._w / 2
+                player_center_y = self._y + self._h / 2
 
-            target_x: int = pyxel.mouse_x + 8
-            target_y: int = pyxel.mouse_y + 8
+                target_x: int = pyxel.mouse_x + 8
+                target_y: int = pyxel.mouse_y + 8
 
-            angle:float = math.atan2(target_y - player_center_y, target_x - player_center_x)
-            bullet_color: int = random.choice([1, 2, 8, 10, 11])
+                angle:float = math.atan2(target_y - player_center_y, target_x - player_center_x)
+                bullet_color: int = random.choice([1, 2, 8, 10, 11])
 
-            new_bullet = Bullet(player_center_x, player_center_y, angle, bullet_color)
-            bullets_list.append(new_bullet)
+                new_bullet = Bullet(player_center_x, player_center_y, angle, bullet_color)
+                bullets_list.append(new_bullet)
 
     def draw(self):
         pyxel.blt(
