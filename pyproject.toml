@@ -1,0 +1,9 @@
+[project]
+name = "Project_Zuma_Tower_Defense"
+version = "0.1.0"
+description = "A Zuma Tower Defense game by Zuma Cum Laude 4"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pyxel>=2.9.5",
+]
