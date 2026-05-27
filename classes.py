@@ -1,7 +1,7 @@
 from typing import Protocol, Sequence
 
 from entities import Bullet, Crosshair, Enemy, Player
-
+from maps import MAP_TYPE
 class ModelData(Protocol):
     @property
     def exp(self) -> int:
@@ -21,6 +21,10 @@ class ModelData(Protocol):
     
     @property
     def crosshair(self) -> Crosshair:
+        ...
+
+    @property
+    def map_data(self) -> MAP_TYPE:
         ...
 
 class UpdateHandler(Protocol):
