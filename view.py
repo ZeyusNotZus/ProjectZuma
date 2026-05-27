@@ -1,5 +1,5 @@
 import pyxel
-
+from classes import DrawHandler, ModelData, UpdateHandler
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
 SCREEN_WIDTH: int = 128
@@ -10,26 +10,28 @@ class View:
         self._width = width
         self._height = height
 
-    def init_window(self, controller):
+    def init_window(self, update_handler: UpdateHandler, draw_handler: DrawHandler):
         pyxel.init(self._width, self._height, title = "Project Z")
         pyxel.mouse(False)
         pyxel.load("sprites.pyxres")
-        pyxel.run(controller.update, controller.draw)
+        pyxel.run(update_handler.update, draw_handler.draw)
 
-    def draw_game(self, exp: int, player, enemies: list, bullets: list, crosshair):
+    def draw_game(self, model: ModelData):
+    #def draw_game(self, exp: int, player, enemies: list, bullets: list, crosshair):
         pyxel.cls(0)
-        pyxel.text(5, 5, "EXP:{:04}".format(exp), 6)
+        pyxel.text(5, 5, "EXP:{:04}".format(model.exp), 6)
 
         # drawing of entities
 
-        player.draw()
+        model.player.draw()
 
+        enemies = model.enemies
         for enemy in enemies:
             enemy.draw()
         
+        bullets = model.bullets
         for bullet in bullets:
             bullet.draw()
 
         # drawing of crosshair
-
-        crosshair.draw()
+        model.crosshair.draw()

@@ -1,6 +1,6 @@
-import entities
-import pyxel
+from typing import Sequence
 
+from entities import Bullet, Enemy, Crosshair, Player, SimpleEnemy
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
 SCREEN_WIDTH: int = 128
@@ -9,10 +9,10 @@ SCREEN_HEIGHT: int = 128
 class Model:
     def __init__(self):
         self._exp: int = 0
-        self._player = entities.Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)
-        self._enemies: list = []
-        self._bullets: list = []
-        self._crosshair = entities.Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)
+        self._enemies: list[Enemy]  = []
+        self._bullets: list[Bullet] = []
+        self._crosshair = Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self._is_game_over: bool = False
 
     @property
@@ -24,25 +24,27 @@ class Model:
         return self._exp
 
     @property
-    def player(self):
+    def player(self) -> Player:
         return self._player
 
+    #Changed to Sequence so only model can mutate
     @property
-    def enemies(self) -> list:
-        return self._enemies
+    def enemies(self) -> Sequence[Enemy]:
+        return tuple(self._enemies)
 
     @property
-    def bullets(self) -> list:
-        return self._bullets
+    def bullets(self) -> Sequence[Bullet]:
+        return tuple(self._bullets)
     
     @property
-    def crosshair(self) -> list:
+    def crosshair(self) -> Crosshair:
         return self._crosshair
     
-    def update(self):
+    # Controller passes frame (to avoid depending on pyxel)
+    def update(self, frame: int):
         self._player.update(self._bullets)
 
-        if pyxel.frame_count % 60 == 0:
+        if frame % 60 == 0:
             self.generate_enemy()
 
         for enemy in self._enemies:
@@ -51,21 +53,25 @@ class Model:
 
         for bullet in self._bullets[:]:
             bullet.update()
-            if (bullet._x < 0 or bullet._x > SCREEN_WIDTH or 
-                bullet._y < 0 or bullet._y > SCREEN_HEIGHT):
+            bullet_x, bullet_y = bullet.coordinates
+            if (bullet_x < 0 or bullet_x > SCREEN_WIDTH or 
+                bullet_y < 0 or bullet_y > SCREEN_HEIGHT):
                 self._bullets.remove(bullet)
             
         self.check_collisions()
 
     def generate_enemy(self):
-        enemy = entities.SimpleEnemy(0, 25, 0.5)
+        enemy = SimpleEnemy(0, 25, 0.5)
         self._enemies.append(enemy)
     
     def check_collisions(self):
         for bullet in self._bullets[:]:
             for enemy in self._enemies[:]:
-                if (enemy._x <= bullet._x <= enemy._x + enemy._w and
-                    enemy._y <= bullet._y <= enemy._y + enemy._h):
+                enemy_w, enemy_h = enemy.dimensions
+                bullet_x, bullet_y = bullet.coordinates
+                enemy_x, enemy_y = enemy.coordinates
+                if (enemy_x <= bullet_x <= enemy_x + enemy_w and
+                    enemy_y <= bullet_y <= enemy_y + enemy_h):
                     
                     if bullet in self._bullets:
                         self._bullets.remove(bullet)

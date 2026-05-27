@@ -3,7 +3,6 @@ import math
 import random
 
 class Ally:
-
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
         self._x = x
         self._y = y
@@ -26,6 +25,14 @@ class Enemy:
         self._h = h
         self._vx: float = 0.0
         self._vy: float = 0.0
+
+    @property
+    def dimensions(self) -> tuple[float, float]:
+        return self._w, self._h
+
+    @property
+    def coordinates(self) -> tuple[float, float]:
+        return self._x, self._y
 
     def update(self):
         self._x += self._vx
@@ -50,6 +57,11 @@ class Bullet:
         self._vx = self._speed * math.cos(angle)
         self._vy = self._speed * math.sin(angle)
 
+
+    @property
+    def coordinates(self) -> tuple[float, float]:
+        return self._x, self._y
+
     def update(self):
         self._x += self._vx
         self._y += self._vy
@@ -57,13 +69,14 @@ class Bullet:
     def draw(self):
         pyxel.circ(self._x, self._y, 2, self._color)
 
-class Player(Ally):
-
+class Player:
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
-        super().__init__(x, y, w, h)
+        self._x = x
+        self._y = y
+        self._w = w  # size of sprite is 16x16
+        self._h = h
     
-    def update(self, bullets_list: list):
-        super().update()
+    def update(self, bullets_list: list[Bullet]):
 
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             player_center_x = self._x + self._w / 2
@@ -87,7 +100,6 @@ class Player(Ally):
         )
 
 class SimpleEnemy(Enemy):
-
     def __init__(self, x: float, y: float, speed: float = 1.0, w: int = 16, h: int = 16):
         super().__init__(x, y, speed, w, h)
 
