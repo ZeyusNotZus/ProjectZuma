@@ -1,5 +1,6 @@
 import pyxel
 import math
+import random
 
 class Ally:
 
@@ -38,12 +39,13 @@ class Enemy:
         self._vy = -self._speed * math.sin(math.radians(direction))
 
 class Bullet:
-    def __init__(self, x: float, y: float, angle: float, speed: float = 3.0):
+    def __init__(self, x: float, y: float, angle: float, color: int, speed: float = 2.0):
         self._x = x
         self._y = y
         self._speed = speed
         self._w = 8
         self._h = 8
+        self._color = color
         
         self._vx = self._speed * math.cos(angle)
         self._vy = self._speed * math.sin(angle)
@@ -53,8 +55,7 @@ class Bullet:
         self._y += self._vy
 
     def draw(self):
-        pyxel.circ(self._x, self._y, 2, 8)
-
+        pyxel.circ(self._x, self._y, 2, self._color)
 
 class Player(Ally):
 
@@ -68,11 +69,13 @@ class Player(Ally):
             player_center_x = self._x + self._w / 2
             player_center_y = self._y + self._h / 2
 
-            target_x = pyxel.mouse_x + 8
-            target_y = pyxel.mouse_y + 8
+            target_x:int = pyxel.mouse_x + 8
+            target_y:int = pyxel.mouse_y + 8
 
-            angle = math.atan2(target_y - player_center_y, target_x - player_center_x)
-            new_bullet = Bullet(player_center_x, player_center_y, angle)
+            angle:float = math.atan2(target_y - player_center_y, target_x - player_center_x)
+            bullet_color:int = random.choice([1, 2, 8, 10, 11])
+
+            new_bullet = Bullet(player_center_x, player_center_y, angle, bullet_color)
 
             bullets_list.append(new_bullet)
 
