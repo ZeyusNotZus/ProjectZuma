@@ -12,11 +12,11 @@ class View:
 
     def init_window(self, controller):
         pyxel.init(self._width, self._height, title = "Project Z")
-        pyxel.mouse(True)
+        pyxel.mouse(False)
         pyxel.load("sprites.pyxres")
         pyxel.run(controller.update, controller.draw)
 
-    def draw_game(self, exp: int, player, enemies: list, bullets: list):
+    def draw_game(self, exp: int, player, enemies: list, bullets: list, crosshair):
         pyxel.cls(0)
         pyxel.text(5, 5, "EXP:{:04}".format(exp), 6)
 
@@ -29,3 +29,7 @@ class View:
         
         for bullet in bullets:
             bullet.draw()
+
+        # drawing of crosshair
+
+        crosshair.draw()

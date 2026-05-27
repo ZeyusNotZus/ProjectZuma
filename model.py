@@ -12,6 +12,7 @@ class Model:
         self._player = entities.Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)
         self._enemies: list = []
         self._bullets: list = []
+        self._crosshair = entities.Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self._is_game_over: bool = False
 
     @property
@@ -34,6 +35,10 @@ class Model:
     def bullets(self) -> list:
         return self._bullets
     
+    @property
+    def crosshair(self) -> list:
+        return self._crosshair
+    
     def update(self):
         self._player.update(self._bullets)
 
@@ -46,8 +51,8 @@ class Model:
 
         for bullet in self._bullets[:]:
             bullet.update()
-            if (bullet.x < 0 or bullet.x > SCREEN_WIDTH or 
-                bullet.y < 0 or bullet.y > SCREEN_HEIGHT):
+            if (bullet._x < 0 or bullet._x > SCREEN_WIDTH or 
+                bullet._y < 0 or bullet._y > SCREEN_HEIGHT):
                 self._bullets.remove(bullet)
             
         self.check_collisions()
@@ -59,8 +64,8 @@ class Model:
     def check_collisions(self):
         for bullet in self._bullets[:]:
             for enemy in self._enemies[:]:
-                if (enemy.x <= bullet.x <= enemy.x + enemy.w and
-                    enemy.y <= bullet.y <= enemy.y + enemy.h):
+                if (enemy._x <= bullet._x <= enemy._x + enemy._w and
+                    enemy._y <= bullet._y <= enemy._y + enemy._h):
                     
                     if bullet in self._bullets:
                         self._bullets.remove(bullet)

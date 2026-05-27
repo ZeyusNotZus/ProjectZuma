@@ -15,8 +15,9 @@ class Controller:
 
     def draw(self):
         self._view.draw_game(
-            exp=self._model.exp,
-            player=self._model.player,
-            enemies=self._model.enemies,
-            bullets=self._model.bullets
+            exp = self._model.exp,
+            player = self._model.player,
+            enemies = self._model.enemies,
+            bullets = self._model.bullets,
+            crosshair = self._model.crosshair
         )

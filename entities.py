@@ -4,10 +4,10 @@ import math
 class Ally:
 
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
-        self.x = x
-        self.y = y
-        self.w = w  # size of sprite is 16x16
-        self.h = h
+        self._x = x
+        self._y = y
+        self._w = w  # size of sprite is 16x16
+        self._h = h
 
     def update(self):
         ...
@@ -18,42 +18,42 @@ class Ally:
 class Enemy:
 
     def __init__(self, x: float, y: float, speed: float = 1.0, w: int = 16, h: int = 16):
-        self.x = x
-        self.y = y
-        self.speed = speed
-        self.w = w  # size of sprite is 16x16
-        self.h = h
-        self.vx: float = 0.0
-        self.vy: float = 0.0
+        self._x = x
+        self._y = y
+        self._speed = speed
+        self._w = w  # size of sprite is 16x16
+        self._h = h
+        self._vx: float = 0.0
+        self._vy: float = 0.0
 
     def update(self):
-        self.x += self.vx
-        self.y += self.vy
+        self._x += self._vx
+        self._y += self._vy
 
     def draw(self):
         ...
     
     def move(self, direction: int): # direction is in degrees
-        self.vx = self.speed * math.cos(math.radians(direction))
-        self.vy = -self.speed * math.sin(math.radians(direction))
+        self._vx = self._speed * math.cos(math.radians(direction))
+        self._vy = -self._speed * math.sin(math.radians(direction))
 
 class Bullet:
     def __init__(self, x: float, y: float, angle: float, speed: float = 3.0):
-        self.x = x
-        self.y = y
-        self.speed = speed
-        self.w = 8
-        self.h = 8
+        self._x = x
+        self._y = y
+        self._speed = speed
+        self._w = 8
+        self._h = 8
         
-        self.vx = self.speed * math.cos(angle)
-        self.vy = self.speed * math.sin(angle)
+        self._vx = self._speed * math.cos(angle)
+        self._vy = self._speed * math.sin(angle)
 
     def update(self):
-        self.x += self.vx
-        self.y += self.vy
+        self._x += self._vx
+        self._y += self._vy
 
     def draw(self):
-        pyxel.circ(self.x, self.y, 2, 8)
+        pyxel.circ(self._x, self._y, 2, 8)
 
 
 class Player(Ally):
@@ -65,8 +65,8 @@ class Player(Ally):
         super().update()
 
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-            player_center_x = self.x + self.w / 2
-            player_center_y = self.y + self.h / 2
+            player_center_x = self._x + self._w / 2
+            player_center_y = self._y + self._h / 2
 
             target_x = pyxel.mouse_x
             target_y = pyxel.mouse_y
@@ -78,9 +78,9 @@ class Player(Ally):
 
     def draw(self):
         pyxel.blt(
-            self.x, self.y, 0,
+            self._x, self._y, 0,
             0, 0,
-            self.w, self.h, 0
+            self._w, self._h, 0
         )
 
 class SimpleEnemy(Enemy):
@@ -90,7 +90,21 @@ class SimpleEnemy(Enemy):
 
     def draw(self):
         pyxel.blt(
-            self.x, self.y, 0,
+            self._x, self._y, 0,
             16, 0,
-            self.w, self.h, 0
+            self._w, self._h, 0
+        )
+
+class Crosshair:
+    def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
+        self._x = pyxel.mouse_x
+        self._y = pyxel.mouse_y
+        self._w = w  # size of sprite is 16x16
+        self._h = h
+    
+    def draw(self):
+        pyxel.blt(
+            pyxel.mouse_x, pyxel.mouse_y, 0,
+            0, 16,
+            self._w, self._h, 0
         )
