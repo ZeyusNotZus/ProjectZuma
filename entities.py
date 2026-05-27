@@ -68,8 +68,8 @@ class Player(Ally):
             player_center_x = self._x + self._w / 2
             player_center_y = self._y + self._h / 2
 
-            target_x = pyxel.mouse_x
-            target_y = pyxel.mouse_y
+            target_x = pyxel.mouse_x + 8
+            target_y = pyxel.mouse_y + 8
 
             angle = math.atan2(target_y - player_center_y, target_x - player_center_x)
             new_bullet = Bullet(player_center_x, player_center_y, angle)
