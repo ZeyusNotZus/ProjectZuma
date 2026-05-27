@@ -19,5 +19,6 @@ class Controller:
             player = self._model.player,
             enemies = self._model.enemies,
             bullets = self._model.bullets,
-            crosshair = self._model.crosshair
+            crosshair = self._model.crosshair,
+            map_data = self._model.map_data
         )

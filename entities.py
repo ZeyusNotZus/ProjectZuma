@@ -2,8 +2,9 @@ import pyxel
 import math
 import random
 
-class Ally:
+TILE_SIZE: int = 16
 
+class Ally:
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
         self._x = x
         self._y = y
@@ -17,27 +18,61 @@ class Ally:
         ...
 
 class Enemy:
-
-    def __init__(self, x: float, y: float, speed: float = 1.0, w: int = 16, h: int = 16):
-        self._x = x
-        self._y = y
+    def __init__(self, tile_x: int, tile_y: int, color: int, speed: float = 1.0):
+        self._tile_x = tile_x
+        self._tile_y = tile_y
+        self._color = color
         self._speed = speed
-        self._w = w  # size of sprite is 16x16
-        self._h = h
-        self._vx: float = 0.0
-        self._vy: float = 0.0
+        self._w = TILE_SIZE
+        self._h = TILE_SIZE
+        self._last_dir = None # prevents enemy from backtracking
 
+    # position of the center of enemy
+    @property
+    def x(self) -> float:
+        return self._tile_x * self._w + (self._w / 2)
+        
+    @property
+    def y(self) -> float:
+        return self._tile_y * self._h + (self._h / 2)
+    
+    # width and height 
+    @property
+    def w(self) -> int:
+        return self._w
+        
+    @property
+    def h(self) -> int:
+        return self._h
+
+    @property
+    def color(self) -> int:
+        return self._color
+    
+    # position in matrix
+    @property
+    def tile_x(self) -> int:
+        return self._tile_x
+
+    @property
+    def tile_y(self) -> int:
+        return self._tile_y
+
+    @property
+    def last_dir(self) -> int:
+        return self._last_dir
+    
     def update(self):
-        self._x += self._vx
-        self._y += self._vy
+        ...
+
+    def move_tile(self, dx: int, dy: int):
+        self._tile_x += dx
+        self._tile_y += dy
+        self._last_dir = (dx, dy)
 
     def draw(self):
         ...
     
-    def move(self, direction: int): # direction is in degrees
-        self._vx = self._speed * math.cos(math.radians(direction))
-        self._vy = -self._speed * math.sin(math.radians(direction))
-
 class Bullet:
     def __init__(self, x: float, y: float, angle: float, color: int, speed: float = 2.0):
         self._x = x
@@ -50,6 +85,18 @@ class Bullet:
         self._vx = self._speed * math.cos(angle)
         self._vy = self._speed * math.sin(angle)
 
+    @property
+    def x(self):
+        return self._x
+        
+    @property
+    def y(self):
+        return self._y
+    
+    @property
+    def color(self):
+        return self._color
+    
     def update(self):
         self._x += self._vx
         self._y += self._vy
@@ -58,7 +105,6 @@ class Bullet:
         pyxel.circ(self._x, self._y, 2, self._color)
 
 class Player(Ally):
-
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
         super().__init__(x, y, w, h)
     
@@ -69,14 +115,13 @@ class Player(Ally):
             player_center_x = self._x + self._w / 2
             player_center_y = self._y + self._h / 2
 
-            target_x:int = pyxel.mouse_x + 8
-            target_y:int = pyxel.mouse_y + 8
+            target_x: int = pyxel.mouse_x + 8
+            target_y: int = pyxel.mouse_y + 8
 
             angle:float = math.atan2(target_y - player_center_y, target_x - player_center_x)
-            bullet_color:int = random.choice([1, 2, 8, 10, 11])
+            bullet_color: int = random.choice([1, 2, 8, 10, 11])
 
             new_bullet = Bullet(player_center_x, player_center_y, angle, bullet_color)
-
             bullets_list.append(new_bullet)
 
     def draw(self):
@@ -87,16 +132,11 @@ class Player(Ally):
         )
 
 class SimpleEnemy(Enemy):
-
-    def __init__(self, x: float, y: float, speed: float = 1.0, w: int = 16, h: int = 16):
-        super().__init__(x, y, speed, w, h)
+    def __init__(self, x: float, y: float, color: int, speed: float = 1.0):
+        super().__init__(x, y, color, speed)
 
     def draw(self):
-        pyxel.blt(
-            self._x, self._y, 0,
-            16, 0,
-            self._w, self._h, 0
-        )
+        pyxel.circ(self.x, self.y, 8, self._color)
 
 class Crosshair:
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):

@@ -1,19 +1,48 @@
-import entities
 import pyxel
+import random
+from collections import deque
+import maps
+import entities
 
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
 SCREEN_WIDTH: int = 128
 SCREEN_HEIGHT: int = 128
+TILE_SIZE: int = 16
+GRID_WIDTH: int = SCREEN_WIDTH // TILE_SIZE
+GRID_HEIGHT: int = SCREEN_HEIGHT // TILE_SIZE
 
 class Model:
-    def __init__(self):
+    def __init__(self):  
         self._exp: int = 0
-        self._player = entities.Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)
         self._enemies: list = []
         self._bullets: list = []
-        self._crosshair = entities.Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self._is_game_over: bool = False
+
+        self._map = maps.MAP_1
+
+        self._start_tiles = self.find_all_start_tiles()
+        self._end_tile = self.find_tile_coordinate('E')
+
+        self._player = entities.Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)     
+        self._crosshair = entities.Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+    def find_tile_coordinate(self, character: str) -> tuple:
+        for row_idx, row in enumerate(self._map):
+            for col_idx, tile in enumerate(row):
+                if tile == character:
+                    return (col_idx, row_idx)
+                
+        return (-1, -1)
+
+    def find_all_start_tiles(self) -> list:
+        start_tiles = []
+        for row_idx, row in enumerate(self._map):
+            for col_idx, tile in enumerate(row):
+                if tile == 'S':
+                    start_tiles.append((col_idx, row_idx))
+        
+        return start_tiles
 
     @property
     def is_game_over(self) -> bool:
@@ -39,34 +68,91 @@ class Model:
     def crosshair(self) -> list:
         return self._crosshair
     
+    @property
+    def map_data(self) -> list:
+        return self._map
+    
     def update(self):
         self._player.update(self._bullets)
 
-        if pyxel.frame_count % 60 == 0:
+        if pyxel.frame_count % 60 == 0: # enemy spawn every 60 frames / 2 seconds
             self.generate_enemy()
 
-        for enemy in self._enemies:
-            enemy.update()
-            enemy.move(0)
+        if pyxel.frame_count % 30 == 0: # enemy movement every 30 frames / 1 second
+            for enemy in self._enemies[:]:
+                if (enemy.tile_x, enemy.tile_y) == self._end_tile:
+                    self._enemies.remove(enemy)
+                    continue
+
+                valid_moves = []        
+                
+                opposite_dir = None
+                if enemy.last_dir is not None:
+                    opposite_dir = (-enemy.last_dir[0], -enemy.last_dir[1]) # notes the opposite direction of last move direction
+
+
+                for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                    if opposite_dir and (dx, dy) == opposite_dir: # dont backtrack
+                        continue
+
+                    next_x, next_y = enemy.tile_x + dx, enemy.tile_y + dy
+                    
+                    if 0 <= next_x < GRID_WIDTH and 0 <= next_y < GRID_HEIGHT: # bounds of map
+                        if self._map[next_y][next_x] in ['P', 'S', 'E']:
+                            valid_moves.append((dx, dy))                 
+
+                if valid_moves:
+                    chosen_dx, chosen_dy = random.choice(valid_moves) # choose randomly at an intersection
+                    enemy.move_tile(chosen_dx, chosen_dy)
 
         for bullet in self._bullets[:]:
             bullet.update()
-            if (bullet._x < 0 or bullet._x > SCREEN_WIDTH or 
-                bullet._y < 0 or bullet._y > SCREEN_HEIGHT):
+            if (bullet.x < 0 or bullet.x > SCREEN_WIDTH or 
+                bullet.y < 0 or bullet.y > SCREEN_HEIGHT):
                 self._bullets.remove(bullet)
             
         self.check_collisions()
 
     def generate_enemy(self):
-        enemy = entities.SimpleEnemy(0, 25, 0.5)
+        if not self._start_tiles:
+            return
+        
+        enemy_color: int = random.choice([1, 2, 8, 10, 11])
+
+        spawn_tile = random.choice(self._start_tiles)
+        spawn_x, spawn_y = spawn_tile
+        
+        enemy = entities.SimpleEnemy(spawn_x, spawn_y, enemy_color, 0.5)
         self._enemies.append(enemy)
     
     def check_collisions(self):
+        
+        # Square collision logic
+
+        # for bullet in self._bullets[:]:
+        #     for enemy in self._enemies[:]:
+        #         if (enemy.x <= bullet.x <= enemy.x + enemy.w and
+        #             enemy.y <= bullet.y <= enemy.y + enemy.h):
+                    
+        #             if bullet in self._bullets:
+        #                 self._bullets.remove(bullet)
+        #             if enemy in self._enemies:
+        #                 self._enemies.remove(enemy)
+                    
+        #             self._exp += 1
+        #             break
+        
+
+        # Circle collision logic
+
         for bullet in self._bullets[:]:
             for enemy in self._enemies[:]:
-                if (enemy._x <= bullet._x <= enemy._x + enemy._w and
-                    enemy._y <= bullet._y <= enemy._y + enemy._h):
-                    
+                dx = bullet.x - enemy.x
+                dy = bullet.y - enemy.y
+                distance_squared = (dx ** 2) + (dy ** 2)
+                collision_limit_squared = 100 
+                
+                if distance_squared <= collision_limit_squared and bullet.color == enemy.color:
                     if bullet in self._bullets:
                         self._bullets.remove(bullet)
                     if enemy in self._enemies:
