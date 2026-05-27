@@ -23,24 +23,21 @@ class View:
         pyxel.cls(0)
 
         # map
+        tile_sprites = {
+            'W': (16, 32),  # Wall
+            'S': (32, 32),  # Spawn
+            'E': (48, 32),  # End
+            'P': (64, 32),  # Path
+            '.': (80,  32),  # Background
+        }
 
         for row_idx, row in enumerate(model.map_data):
             for col_idx, tile_type in enumerate(row):
                 px = col_idx * TILE_SIZE
                 py = row_idx * TILE_SIZE
-                match tile_type:
-                    case 'W':
-                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 13) # CHAMHE LATER FOR SPRITES
-                    case 'S':
-                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 3)
-                    case 'E':
-                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 8)
-                    case 'P':
-                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 0)
-                    case '.':
-                        pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 13)
-                    case _:
-                        ...
+ 
+                u, v = tile_sprites.get(tile_type, (0, 32))
+                pyxel.blt(px, py, 0, u, v, TILE_SIZE, TILE_SIZE)
 
         # entities
         model.player.draw()
@@ -56,4 +53,4 @@ class View:
         # drawing of crosshair
         model.crosshair.draw()
 
-        pyxel.text(5, 5, "EXP:{:04}".format(model.exp), 6)
+        pyxel.text(220, 118, "EXP:{:04}".format(model.exp), 7)
