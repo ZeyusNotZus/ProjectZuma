@@ -1,5 +1,5 @@
 import pyxel
-import sprite
+import entities
 
 SCREEN_WIDTH: int = 120
 SCREEN_HEIGHT: int = 120
@@ -8,7 +8,7 @@ class Game:
     def __init__(self):
         self.exp = 0
         
-        self.player = sprite.PlayerSprite(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 - 8)
+        self.player = entities.Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 - 8)
        
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, title="Project Z")
         pyxel.load("sprites.pyxres")
