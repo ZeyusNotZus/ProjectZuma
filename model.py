@@ -115,7 +115,7 @@ class Model:
         if not self._start_tiles:
             return
         
-        enemy_color: int = random.choice([1, 2, 7, 8, 9, 11])
+        enemy_color: int = random.choice([1, 2, 7, 8, 9, 12])
 
         spawn_tile = random.choice(self._start_tiles)
         spawn_x, spawn_y = spawn_tile

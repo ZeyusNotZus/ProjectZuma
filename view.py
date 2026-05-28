@@ -23,21 +23,23 @@ class View:
         pyxel.cls(0)
 
         # map
-        tile_sprites = {
-            'W': (16, 32),  # Wall
-            'S': (32, 32),  # Spawn
-            'E': (48, 32),  # End
-            'P': (64, 32),  # Path
-            '.': (80,  32),  # Background
-        }
+        # tile_sprites = {
+        #     'W': (16, 32),  # Wall
+        #     'S': (32, 32),  # Spawn
+        #     'E': (48, 32),  # End
+        #     'P': (64, 32),  # Path
+        #     '.': (80,  32),  # Background
+        # }
 
-        for row_idx, row in enumerate(model.map_data):
-            for col_idx, tile_type in enumerate(row):
-                px = col_idx * TILE_SIZE
-                py = row_idx * TILE_SIZE
+        # for row_idx, row in enumerate(model.map_data):
+        #     for col_idx, tile_type in enumerate(row):
+        #         px = col_idx * TILE_SIZE
+        #         py = row_idx * TILE_SIZE
  
-                u, v = tile_sprites.get(tile_type, (0, 32))
-                pyxel.blt(px, py, 0, u, v, TILE_SIZE, TILE_SIZE)
+        #         u, v = tile_sprites.get(tile_type, (0, 32))
+        #         pyxel.blt(px, py, 0, u, v, TILE_SIZE, TILE_SIZE)
+
+        pyxel.bltm(0,0,0,0,0,16*16,8*16)
 
         # entities
         model.player.draw()

@@ -131,7 +131,7 @@ class Player:
         self._last_shot = pyxel.frame_count
     
     def get_bullet(self) -> int:
-        bullet_color: int = random.choice([1, 2, 7, 8, 9, 11])
+        bullet_color: int = random.choice([1, 2, 7, 8, 9, 12])
         return bullet_color
 
     def update(self, bullets_list: list[Bullet]):
