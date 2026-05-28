@@ -84,7 +84,7 @@ class Enemy:
         ...
     
 class Bullet:
-    def __init__(self, x: float, y: float, angle: float, color: int, speed: float = 2.0):
+    def __init__(self, x: float, y: float, angle: float, color: int, speed: float = 1.908):
         self._x = x
         self._y = y
         self._speed = speed
@@ -112,16 +112,16 @@ class Bullet:
         self._y += self._vy
 
     def draw(self):
-        pyxel.circ(self._x, self._y, 2, self._color)
+        pyxel.circ(self._x, self._y, 5, self._color)
 
 class Player:
-    def __init__(self, x: float, y: float, cooldown: int = 0, w: int = 16, h: int = 16):
+    def __init__(self, x: float, y: float, cooldown: float = 33.33, w: int = 16, h: int = 16):
         self._x = x
         self._y = y
         self._w = w  # size of sprite is 16x16
         self._h = h
         self._shoot_cooldown = cooldown
-        self._last_shot = -100
+        self._last_shot = -self._shoot_cooldown
         self._loaded_bullet: int = self.get_bullet()
 
     def can_shoot(self) -> bool:

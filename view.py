@@ -13,7 +13,7 @@ class View:
         self._height = height
 
     def init_window(self, update_handler: UpdateHandler, draw_handler: DrawHandler):
-        pyxel.init(self._width, self._height, title = "Project Z")
+        pyxel.init(self._width, self._height, title = "Project Z", fps = 30)
         pyxel.mouse(False)
         pyxel.load("sprites.pyxres")
         pyxel.run(update_handler.update, draw_handler.draw)

@@ -22,7 +22,7 @@ class Model:
         self._start_tiles = self.find_all_start_tiles()
         self._end_tile = self.find_tile_coordinate('E')
 
-        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25, 27)     
+        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)     
         self._crosshair = Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
     def find_tile_coordinate(self, character: str) -> tuple[int, int]:
@@ -76,7 +76,7 @@ class Model:
         if frame % 60 == 0: # enemy spawn every 60 frames / 2 seconds
             self.generate_enemy()
 
-        if frame % 30 == 0: # enemy movement every 30 frames / 1 second
+        if frame % 60 == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
                     self._enemies.remove(enemy)
