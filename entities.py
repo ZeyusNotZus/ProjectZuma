@@ -4,7 +4,7 @@ import random
 
 TILE_SIZE: int = 16
 SCREEN_WIDTH: int = 256
-SCREEN_HEIGHT: int = 128
+SCREEN_HEIGHT: int = 152
 
 class Ally:
     def __init__(self, x: float, y: float, cooldown: int = 0, w: int = 16, h: int = 16):

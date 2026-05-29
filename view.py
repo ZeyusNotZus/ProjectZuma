@@ -4,7 +4,7 @@ from classes import DrawHandler, ModelData, UpdateHandler
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
 SCREEN_WIDTH: int = 256
-SCREEN_HEIGHT: int = 128
+SCREEN_HEIGHT: int = 176
 TILE_SIZE: int = 16
 
 class View:
@@ -39,7 +39,8 @@ class View:
         #         u, v = tile_sprites.get(tile_type, (0, 32))
         #         pyxel.blt(px, py, 0, u, v, TILE_SIZE, TILE_SIZE)
 
-        pyxel.bltm(0,0,0,0,0,16*16,8*16) # tile map
+        pyxel.bltm(0, 0, 0, 0, 0, 16 * 16, 8 * 16) # tile map
+        pyxel.bltm(0, 128, 1, 0, 0, 16 * 16, 3 * 16) # bar
 
         # entities
         model.player.draw()
@@ -55,5 +56,8 @@ class View:
         # drawing of crosshair
         model.crosshair.draw()
 
-        pyxel.text(220, 118, "EXP:{:04}".format(model.exp), 7)
-        pyxel.text(150, 118, "LIVES:{:02}".format(model.lives), 8)
+        pyxel.text(203, 138, "MAP:{:02}".format(model.lives), 1)
+        pyxel.text(203, 146, "ROUND:{:02}".format(model.lives), 5)
+        pyxel.text(203, 154, "LIVES:{:02}".format(model.lives), 8)
+        pyxel.text(203, 162, "EXP:{:04}".format(model.exp), 7)
+        
