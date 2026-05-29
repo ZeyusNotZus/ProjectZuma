@@ -39,7 +39,7 @@ class View:
         #         u, v = tile_sprites.get(tile_type, (0, 32))
         #         pyxel.blt(px, py, 0, u, v, TILE_SIZE, TILE_SIZE)
 
-        pyxel.bltm(0,0,0,0,0,16*16,8*16)
+        pyxel.bltm(0,0,0,0,0,16*16,8*16) # tile map
 
         # entities
         model.player.draw()

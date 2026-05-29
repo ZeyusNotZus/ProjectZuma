@@ -37,14 +37,14 @@ class Enemy:
         self._h = TILE_SIZE
         self._last_dir = None # prevents enemy from backtracking
 
-    # position of the center of enemy
+    # pixel position of enemy
     @property
-    def x(self) -> float:
-        return self._tile_x * self._w + (self._w / 2)
+    def _x(self) -> float:
+        return self._tile_x * self._w
         
     @property
-    def y(self) -> float:
-        return self._tile_y * self._h + (self._h / 2)
+    def _y(self) -> float:
+        return self._tile_y * self._h
     
     # width and height 
     @property
@@ -179,7 +179,7 @@ class Player:
         7: 32,
         8: 48,
         9: 64,
-        11: 80 
+        12: 80 
         }
 
         sprite = sprite_map.get(self._loaded_bullet, 0)
@@ -195,8 +195,22 @@ class SimpleEnemy(Enemy):
         super().__init__(x, y, color, speed)
 
     def draw(self):
-        pyxel.circ(self.x, self.y, 8, self._color)
+        simple_enemy_sprites: dict[int, int] = {
+            1 : 0,
+            2 : 16,
+            7 : 32,
+            8 : 48,
+            9 : 64,
+            12 : 80
+            }
+        
+        sprite = simple_enemy_sprites[self._color]
 
+        pyxel.blt(
+            self._x, self._y, 0,
+            sprite, 16,
+            self._w, self._h, 0
+        )
 class Crosshair:
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
         self._x = pyxel.mouse_x
@@ -207,6 +221,6 @@ class Crosshair:
     def draw(self):
         pyxel.blt(
             pyxel.mouse_x, pyxel.mouse_y, 0,
-            0, 16,
+            0, 48,
             self._w, self._h, 0
         )

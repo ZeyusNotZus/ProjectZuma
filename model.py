@@ -101,7 +101,7 @@ class Model:
 
                 if valid_moves:
                     chosen_dx, chosen_dy = random.choice(valid_moves) # choose randomly at an intersection
-                    enemy.move_tile(chosen_dx, chosen_dy)
+                    enemy.move_tile(chosen_dx, chosen_dy) # WARNING: THIS MAY CAUSE LOOPING WHEN A PATH HAS A LOOP
 
         for bullet in self._bullets[:]:
             bullet.update()
