@@ -21,6 +21,7 @@ class Model:
 
         self._map = maps.MAP_2
         self._enemy_spawn_rate: int = 60
+        self._enemy_move_speed: int = 60
 
         self._start_tiles = self.find_all_start_tiles()
         self._end_tile = self.find_tile_coordinate('E')
@@ -92,7 +93,7 @@ class Model:
         self.check_collisions()
     
     def move_enemy(self, frame: int):
-        if frame % 60 == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
+        if frame % self._enemy_move_speed == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
                     self._enemies.remove(enemy)
