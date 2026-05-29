@@ -88,7 +88,12 @@ class Model:
 
         if frame % 60 == 0: # enemy spawn every 60 frames / 2 seconds
             self.generate_enemy()
-
+            
+        self.move_enemy(frame)
+        self.move_bullet()
+        self.check_collisions()
+    
+    def move_enemy(self, frame: int):
         if frame % 60 == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
@@ -119,13 +124,14 @@ class Model:
                     chosen_dx, chosen_dy = random.choice(valid_moves) # choose randomly at an intersection
                     enemy.move_tile(chosen_dx, chosen_dy) # WARNING: THIS MAY CAUSE LOOPING WHEN A PATH HAS A LOOP
 
+
+
+    def move_bullet(self):
         for bullet in self._bullets[:]:
             bullet.update()
             if (bullet.x < 0 or bullet.x > SCREEN_WIDTH or 
                 bullet.y < 0 or bullet.y > SCREEN_HEIGHT):
                 self._bullets.remove(bullet)
-            
-        self.check_collisions()
 
     def generate_enemy(self):
         if not self._start_tiles:
