@@ -84,14 +84,14 @@ class Enemy:
         ...
     
 class Bullet:
-    def __init__(self, x: float, y: float, angle: float, color: int, speed: float = 1.908):
+    def __init__(self, x: float, y: float, angle: float, color: int, size: int = 5, speed: float = 1.908):
         self._x = x
         self._y = y
         self._speed = speed
         self._w = 8
         self._h = 8
         self._color = color
-        
+        self._size = size
         self._vx = self._speed * math.cos(angle)
         self._vy = self._speed * math.sin(angle)
 
@@ -107,12 +107,16 @@ class Bullet:
     def color(self):
         return self._color
     
+    @property
+    def size(self):
+        return self._size
+    
     def update(self):
         self._x += self._vx
         self._y += self._vy
 
     def draw(self):
-        pyxel.circ(self._x, self._y, 5, self._color)
+        pyxel.circ(self._x, self._y, self._size, self._color)
 
 class Player:
     def __init__(self, x: float, y: float, cooldown: float = 33.33, w: int = 16, h: int = 16):
@@ -211,6 +215,7 @@ class SimpleEnemy(Enemy):
             sprite, 16,
             self._w, self._h, 0
         )
+
 class Crosshair:
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
         self._x = pyxel.mouse_x
