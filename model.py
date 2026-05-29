@@ -20,6 +20,7 @@ class Model:
         self._is_game_over: bool = False
 
         self._map = maps.MAP_2
+        self._enemy_spawn_rate: int = 60
 
         self._start_tiles = self.find_all_start_tiles()
         self._end_tile = self.find_tile_coordinate('E')
@@ -85,10 +86,7 @@ class Model:
     
     def update(self, frame: int):
         self._player.update(self._bullets)
-
-        if frame % 60 == 0: # enemy spawn every 60 frames / 2 seconds
-            self.generate_enemy()
-            
+        self.generate_enemy(frame)
         self.move_enemy(frame)
         self.move_bullet()
         self.check_collisions()
@@ -133,17 +131,18 @@ class Model:
                 bullet.y < 0 or bullet.y > SCREEN_HEIGHT):
                 self._bullets.remove(bullet)
 
-    def generate_enemy(self):
-        if not self._start_tiles:
-            return
-        
-        enemy_color: int = random.choice([1, 2, 7, 8, 9, 12])
+    def generate_enemy(self, frame: int):
+        if frame % self._enemy_spawn_rate== 0:
+            if not self._start_tiles:
+                return
+            
+            enemy_color: int = random.choice([1, 2, 7, 8, 9, 12])
 
-        spawn_tile = random.choice(self._start_tiles)
-        spawn_x, spawn_y = spawn_tile
-        
-        enemy = SimpleEnemy(spawn_x, spawn_y, enemy_color, 0.5)
-        self._enemies.append(enemy)
+            spawn_tile = random.choice(self._start_tiles)
+            spawn_x, spawn_y = spawn_tile
+            
+            enemy = SimpleEnemy(spawn_x, spawn_y, enemy_color, 0.5)
+            self._enemies.append(enemy)
     
     def check_collisions(self):
         for bullet in self._bullets[:]:
