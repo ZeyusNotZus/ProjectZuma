@@ -56,3 +56,4 @@ class View:
         model.crosshair.draw()
 
         pyxel.text(220, 118, "EXP:{:04}".format(model.exp), 7)
+        pyxel.text(150, 118, "LIVES:{:02}".format(model.lives), 8)

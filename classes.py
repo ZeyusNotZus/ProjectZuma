@@ -27,6 +27,10 @@ class ModelData(Protocol):
     def map_data(self) -> MAP_TYPE:
         ...
 
+    @property
+    def lives(self) -> int:
+        ...
+
 class UpdateHandler(Protocol):
     def update(self) -> None: ...
 
