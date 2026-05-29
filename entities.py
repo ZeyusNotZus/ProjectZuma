@@ -3,6 +3,8 @@ import math
 import random
 
 TILE_SIZE: int = 16
+SCREEN_WIDTH: int = 256
+SCREEN_HEIGHT: int = 128
 
 class Ally:
     def __init__(self, x: float, y: float, cooldown: int = 0, w: int = 16, h: int = 16):
@@ -156,9 +158,13 @@ class Player:
 
         if dx != 0:
             self._x += dx
+            # bounds
+            self._x = max(0, min(SCREEN_WIDTH - self._w, self._x))
                 
         if dy != 0:
             self._y += dy
+            # bounds
+            self._y = max(0, min(SCREEN_HEIGHT - self._h, self._y))
 
         # shooting
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):

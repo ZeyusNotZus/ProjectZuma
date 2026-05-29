@@ -1,3 +1,5 @@
+import os
+import json
 import random
 import maps
 from entities import Bullet, Enemy, Player, Crosshair, SimpleEnemy
@@ -24,6 +26,13 @@ class Model:
 
         self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)     
         self._crosshair = Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+        # get settings
+        settings_path = os.path.join(os.path.dirname(__file__), "settings.json")
+        with open(settings_path) as f:
+            settings = json.load(f)
+        self._lives: int = settings["player_lives"]
+        self._enemies_per_round: int = settings["enemies_per_round"]
 
     def find_tile_coordinate(self, character: str) -> tuple[int, int]:
         for row_idx, row in enumerate(self._map):
@@ -70,6 +79,10 @@ class Model:
     def map_data(self) -> maps.MAP_TYPE:
         return self._map
     
+    @property
+    def lives(self) -> int:
+        return self._lives
+    
     def update(self, frame: int):
         self._player.update(self._bullets)
 
@@ -80,6 +93,9 @@ class Model:
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
                     self._enemies.remove(enemy)
+                    self._lives -= 1
+                    if self._lives <= 0:
+                        self._is_game_over = True
                     continue
 
                 valid_moves: list[tuple[int, int]] = []        
