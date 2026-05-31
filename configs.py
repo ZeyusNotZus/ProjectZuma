@@ -4,7 +4,7 @@ from enum import Enum
 ##### VIEW #######
 
 SCREEN_WIDTH: int = 256
-SCREEN_HEIGHT: int = 128
+SCREEN_HEIGHT: int = 176
 TILE_SIZE: int = 16
 GRID_WIDTH: int = SCREEN_WIDTH // TILE_SIZE
 GRID_HEIGHT: int = SCREEN_HEIGHT // TILE_SIZE

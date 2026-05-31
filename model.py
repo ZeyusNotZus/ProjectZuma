@@ -18,6 +18,8 @@ class Model:
         self._is_game_over: bool = False
 
         self._map = MAP_2
+        self._enemy_spawn_rate: int = 60
+        self._enemy_move_speed: int = 60
 
         self._start_tiles = self._find_all_start_tiles()
         self._end_tile = self._find_tile_coordinate('E')
@@ -83,11 +85,13 @@ class Model:
     
     def update(self, frame: int):
         self._player.update(self._bullets)
-
-        if frame % SPAWN_INTERVAL == 0: # enemy spawn every 60 frames / 2 seconds
-            self.generate_enemy()
-
-        if frame % SPAWN_INTERVAL == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
+        self.generate_enemy(frame)
+        self.move_enemy(frame)
+        self.move_bullet()
+        self.check_collisions()
+    
+    def move_enemy(self, frame: int):
+        if frame % self._enemy_move_speed == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
                     self._enemies.remove(enemy)
@@ -117,19 +121,21 @@ class Model:
                     chosen_dx, chosen_dy = self._rng.choice(valid_moves) # choose randomly at an intersection
                     enemy.move_tile(chosen_dx, chosen_dy) # WARNING: THIS MAY CAUSE LOOPING WHEN A PATH HAS A LOOP
 
+
+
+    def move_bullet(self):
         for bullet in self._bullets[:]:
             bullet.update()
             if (bullet.x < 0 or bullet.x > SCREEN_WIDTH or 
                 bullet.y < 0 or bullet.y > SCREEN_HEIGHT):
                 self._bullets.remove(bullet)
-            
-        self.check_collisions()
 
-    def generate_enemy(self):
-        if not self._start_tiles:
-            return
-        
-        enemy_color = self._rng.choice(GAME_THEME)
+    def generate_enemy(self, frame: int):
+        if frame % self._enemy_spawn_rate== 0:
+            if not self._start_tiles:
+                return
+            
+            enemy_color = self._rng.choice(GAME_THEME)
 
         spawn_tile = self._rng.choice(self._start_tiles)
         spawn_x, spawn_y = spawn_tile
