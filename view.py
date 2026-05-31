@@ -1,11 +1,7 @@
 import pyxel
 from classes import DrawHandler, ModelData, UpdateHandler
 
-# REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
-
-SCREEN_WIDTH: int = 256
-SCREEN_HEIGHT: int = 128
-TILE_SIZE: int = 16
+from configs import SCREEN_HEIGHT, SCREEN_WIDTH
 
 class View:
     def __init__(self, width: int = SCREEN_WIDTH, height: int = SCREEN_HEIGHT):

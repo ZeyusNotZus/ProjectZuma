@@ -1,31 +1,29 @@
+from sympy import randprime
+
 import os
 import json
-import random
-import maps
+from random import Random
+
+from configs import SCREEN_HEIGHT, SCREEN_WIDTH, MAP_2, MAP_TYPE, GRID_HEIGHT, GRID_WIDTH, GAME_THEME, TILE_SIZE, SPAWN_INTERVAL
 from entities import Bullet, Enemy, Player, Crosshair, SimpleEnemy
 
 # REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
 
-SCREEN_WIDTH: int = 256
-SCREEN_HEIGHT: int = 128
-TILE_SIZE: int = 16
-GRID_WIDTH: int = SCREEN_WIDTH // TILE_SIZE
-GRID_HEIGHT: int = SCREEN_HEIGHT // TILE_SIZE
 
 class Model:
-    def __init__(self):  
+    def __init__(self, rng: Random | None = None):  
         self._exp: int = 0
         self._enemies: list[Enemy] = []
         self._bullets: list[Bullet] = []
         self._is_game_over: bool = False
 
-        self._map = maps.MAP_2
+        self._map = MAP_2
 
-        self._start_tiles = self.find_all_start_tiles()
-        self._end_tile = self.find_tile_coordinate('E')
-
-        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25)     
-        self._crosshair = Crosshair(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self._start_tiles = self._find_all_start_tiles()
+        self._end_tile = self._find_tile_coordinate('E')
+        self._rng = rng or Random()
+        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25, self._rng)     
+        self._crosshair = Crosshair()
 
         # get settings
         settings_path = os.path.join(os.path.dirname(__file__), "settings.json")
@@ -34,7 +32,7 @@ class Model:
         self._lives: int = settings["player_lives"]
         self._enemies_per_round: int = settings["enemies_per_round"]
 
-    def find_tile_coordinate(self, character: str) -> tuple[int, int]:
+    def _find_tile_coordinate(self, character: str) -> tuple[int, int]:
         for row_idx, row in enumerate(self._map):
             for col_idx, tile in enumerate(row):
                 if tile == character:
@@ -42,7 +40,7 @@ class Model:
                 
         return (-1, -1)
 
-    def find_all_start_tiles(self) -> list[tuple[int, int]]:
+    def _find_all_start_tiles(self) -> list[tuple[int, int]]:
         start_tiles: list[tuple[int, int]] = []
         for row_idx, row in enumerate(self._map):
             for col_idx, tile in enumerate(row):
@@ -76,7 +74,7 @@ class Model:
         return self._crosshair
     
     @property
-    def map_data(self) -> maps.MAP_TYPE:
+    def map_data(self) -> MAP_TYPE:
         return self._map
     
     @property
@@ -86,10 +84,10 @@ class Model:
     def update(self, frame: int):
         self._player.update(self._bullets)
 
-        if frame % 60 == 0: # enemy spawn every 60 frames / 2 seconds
+        if frame % SPAWN_INTERVAL == 0: # enemy spawn every 60 frames / 2 seconds
             self.generate_enemy()
 
-        if frame % 60 == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
+        if frame % SPAWN_INTERVAL == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
                     self._enemies.remove(enemy)
@@ -116,7 +114,7 @@ class Model:
                             valid_moves.append((dx, dy))                 
 
                 if valid_moves:
-                    chosen_dx, chosen_dy = random.choice(valid_moves) # choose randomly at an intersection
+                    chosen_dx, chosen_dy = self._rng.choice(valid_moves) # choose randomly at an intersection
                     enemy.move_tile(chosen_dx, chosen_dy) # WARNING: THIS MAY CAUSE LOOPING WHEN A PATH HAS A LOOP
 
         for bullet in self._bullets[:]:
@@ -131,9 +129,9 @@ class Model:
         if not self._start_tiles:
             return
         
-        enemy_color: int = random.choice([1, 2, 7, 8, 9, 12])
+        enemy_color = self._rng.choice(GAME_THEME)
 
-        spawn_tile = random.choice(self._start_tiles)
+        spawn_tile = self._rng.choice(self._start_tiles)
         spawn_x, spawn_y = spawn_tile
         
         enemy = SimpleEnemy(spawn_x, spawn_y, enemy_color, 0.5)
@@ -141,21 +139,17 @@ class Model:
     
     def check_collisions(self):
         for bullet in self._bullets[:]:
+            bx, by = bullet.x, bullet.y
+
             for enemy in self._enemies[:]:
-                
-                enemy_left = enemy.tile_x * TILE_SIZE
-                enemy_right = enemy_left + TILE_SIZE
-                enemy_top = enemy.tile_y * TILE_SIZE
-                enemy_bottom = enemy_top + TILE_SIZE
-                
-                if (enemy_left <= bullet.x <= enemy_right and
-                    enemy_top <= bullet.y <= enemy_bottom):
-                    
+                ex = enemy.tile_x * TILE_SIZE
+                ey = enemy.tile_y * TILE_SIZE
+
+                if (ex <= bx <= ex + TILE_SIZE and
+                    ey <= by <= ey + TILE_SIZE):
+
                     if bullet.color == enemy.color:
-                        if bullet in self._bullets: 
-                            self._bullets.remove(bullet)
-                        if enemy in self._enemies: 
-                            self._enemies.remove(enemy)
-                        
+                        self._bullets.remove(bullet)
+                        self._enemies.remove(enemy)
                         self._exp += 1
                         break

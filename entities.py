@@ -1,10 +1,7 @@
+from configs import PyxelColor, GAME_THEME, ENEMY_SPRITES, TILE_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH
 import pyxel
 import math
-import random
-
-TILE_SIZE: int = 16
-SCREEN_WIDTH: int = 256
-SCREEN_HEIGHT: int = 128
+from random import Random
 
 class Ally:
     def __init__(self, x: float, y: float, cooldown: int = 0, w: int = 16, h: int = 16):
@@ -30,7 +27,7 @@ class Ally:
         ...
 
 class Enemy:
-    def __init__(self, tile_x: int, tile_y: int, color: int, speed: float = 1.0):
+    def __init__(self, tile_x: int, tile_y: int, color: PyxelColor, speed: float = 1.0):
         self._tile_x = tile_x
         self._tile_y = tile_y
         self._color = color
@@ -58,7 +55,7 @@ class Enemy:
         return self._h
 
     @property
-    def color(self) -> int:
+    def color(self) -> PyxelColor:
         return self._color
     
     # position in matrix
@@ -86,7 +83,7 @@ class Enemy:
         ...
     
 class Bullet:
-    def __init__(self, x: float, y: float, angle: float, color: int, size: int = 5, speed: float = 1.908):
+    def __init__(self, x: float, y: float, angle: float, color: PyxelColor, size: int = 5, speed: float = 1.908):
         self._x = x
         self._y = y
         self._speed = speed
@@ -97,20 +94,21 @@ class Bullet:
         self._vx = self._speed * math.cos(angle)
         self._vy = self._speed * math.sin(angle)
 
+
     @property
-    def x(self):
+    def x(self) -> float:
         return self._x
         
     @property
-    def y(self):
+    def y(self) -> float:
         return self._y
     
     @property
-    def color(self):
+    def color(self) -> PyxelColor:
         return self._color
     
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
     
     def update(self):
@@ -118,17 +116,18 @@ class Bullet:
         self._y += self._vy
 
     def draw(self):
-        pyxel.circ(self._x, self._y, self._size, self._color)
+        pyxel.circ(self._x, self._y, self._size, self._color.value)
 
 class Player:
-    def __init__(self, x: float, y: float, cooldown: float = 33.33, w: int = 16, h: int = 16):
+    def __init__(self, x: float, y: float, rng: Random, cooldown: int = 33, w: int = 16, h: int = 16):
         self._x = x
         self._y = y
         self._w = w  # size of sprite is 16x16
         self._h = h
         self._shoot_cooldown = cooldown
         self._last_shot = -self._shoot_cooldown
-        self._loaded_bullet: int = self.get_bullet()
+        self._rng = rng
+        self._loaded_bullet = self.get_bullet()
 
     def can_shoot(self) -> bool:
         return pyxel.frame_count - self._last_shot >= self._shoot_cooldown
@@ -136,8 +135,8 @@ class Player:
     def cooldown(self):
         self._last_shot = pyxel.frame_count
     
-    def get_bullet(self) -> int:
-        bullet_color: int = random.choice([1, 2, 7, 8, 9, 12])
+    def get_bullet(self) -> PyxelColor:
+        bullet_color: PyxelColor = self._rng.choice(seq=GAME_THEME)
         return bullet_color
 
     def update(self, bullets_list: list[Bullet]):
@@ -183,16 +182,7 @@ class Player:
 
 
     def draw(self):
-        sprite_map = {
-        1: 0,
-        2: 16,
-        7: 32,
-        8: 48,
-        9: 64,
-        12: 80 
-        }
-
-        sprite = sprite_map.get(self._loaded_bullet, 0)
+        sprite = ENEMY_SPRITES.get(self._loaded_bullet.value, 0)
 
         pyxel.blt(
             self._x, self._y, 0,
@@ -201,20 +191,11 @@ class Player:
         )
 
 class SimpleEnemy(Enemy):
-    def __init__(self, x: int, y: int, color: int, speed: float = 1.0):
+    def __init__(self, x: int, y: int, color: PyxelColor, speed: float = 1.0):
         super().__init__(x, y, color, speed)
 
     def draw(self):
-        simple_enemy_sprites: dict[int, int] = {
-            1 : 0,
-            2 : 16,
-            7 : 32,
-            8 : 48,
-            9 : 64,
-            12 : 80
-            }
-        
-        sprite = simple_enemy_sprites[self._color]
+        sprite = ENEMY_SPRITES[self._color.value]
 
         pyxel.blt(
             self._x, self._y, 0,
@@ -222,16 +203,20 @@ class SimpleEnemy(Enemy):
             self._w, self._h, 0
         )
 
+# class Crosshair:
+#     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
+#         self._x = pyxel.mouse_x
+#         self._y = pyxel.mouse_y
+#         self._w = w  # size of sprite is 16x16
+#         self._h = h
+    #---------- Since madaming unused
+#     def draw(self):
+#         pyxel.blt(
+#             pyxel.mouse_x, pyxel.mouse_y, 0,
+#             0, 48,
+#             self._w, self._h, 0
+#         )
+
 class Crosshair:
-    def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
-        self._x = pyxel.mouse_x
-        self._y = pyxel.mouse_y
-        self._w = w  # size of sprite is 16x16
-        self._h = h
-    
     def draw(self):
-        pyxel.blt(
-            pyxel.mouse_x, pyxel.mouse_y, 0,
-            0, 48,
-            self._w, self._h, 0
-        )
+        pyxel.blt(pyxel.mouse_x, pyxel.mouse_y, 0, 0, 48, 16, 16, 0)

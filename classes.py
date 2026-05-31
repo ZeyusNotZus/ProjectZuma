@@ -1,7 +1,8 @@
+import enum
 from typing import Protocol, Sequence
 
 from entities import Bullet, Crosshair, Enemy, Player
-from maps import MAP_TYPE
+from configs import MAP_TYPE
 class ModelData(Protocol):
     @property
     def exp(self) -> int:
@@ -36,3 +37,4 @@ class UpdateHandler(Protocol):
 
 class DrawHandler(Protocol):
     def draw(self) -> None: ...
+
