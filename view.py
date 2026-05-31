@@ -1,5 +1,5 @@
 import pyxel
-from classes import DrawHandler, ModelData, UpdateHandler
+from classes import DrawHandler, ModelData, UpdateHandler, GameState
 
 from configs import SCREEN_HEIGHT, SCREEN_WIDTH
 
@@ -52,8 +52,12 @@ class View:
         # drawing of crosshair
         model.crosshair.draw()
 
-        pyxel.text(203, 138, "MAP:{:02}".format(model.lives), 1)
-        pyxel.text(203, 146, "ROUND:{:02}".format(model.lives), 5)
-        pyxel.text(203, 154, "LIVES:{:02}".format(model.lives), 8)
-        pyxel.text(203, 162, "EXP:{:04}".format(model.exp), 7)
+        pyxel.text(203, 138, "ROUND:{:02}".format(model.current_wave), 5)
+        pyxel.text(203, 146, "LIVES:{:02}".format(model.lives), 8)
+        pyxel.text(203, 154, "EXP:{:04}".format(model.exp), 7)
         
+        if model.state == GameState.PREPARATION:
+            pyxel.text(10, 10, "PREPARATION PHASE", 10)
+            pyxel.text(10, 20, "Press SPACE to start wave", 7)
+        elif model.state == GameState.GAME_OVER:
+            pyxel.text(SCREEN_WIDTH//2 - 20, SCREEN_HEIGHT//2, "GAME OVER", 8)

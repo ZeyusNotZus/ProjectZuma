@@ -4,28 +4,34 @@ import os
 import json
 from random import Random
 
-from configs import SCREEN_HEIGHT, SCREEN_WIDTH, MAP_2, MAP_TYPE, GRID_HEIGHT, GRID_WIDTH, GAME_THEME, TILE_SIZE, SPAWN_INTERVAL
+from configs import GAME_HEIGHT, GAME_WIDTH, MAP_2, MAP_TYPE, GRID_HEIGHT, GRID_WIDTH, GAME_THEME, TILE_SIZE, SPAWN_INTERVAL
 from entities import Bullet, Enemy, Player, Crosshair, SimpleEnemy
-
-# REMOVE AFTER IMPLEMENTATION OF STANDARDIZED SCREEN SIZE
-
+from classes import GameState, DEFAULT_MAP, MapDef
 
 class Model:
-    def __init__(self, rng: Random | None = None):  
+    def __init__(self, rng: Random | None = None):
+        self._is_game_over: bool = False
+        self._state: GameState = GameState.PREPARATION
+        self._rng = rng or Random()
+        self._level: MapDef = DEFAULT_MAP
+        # ------ Player Things
         self._exp: int = 0
+
+
+        # ------ Entity Things
         self._enemies: list[Enemy] = []
         self._bullets: list[Bullet] = []
-        self._is_game_over: bool = False
+        self._crosshair = Crosshair(GAME_WIDTH//2, GAME_HEIGHT//2)
+        self._player = Player(GAME_WIDTH // 2 - 8, GAME_HEIGHT // 2 + 25, self._rng)     
 
-        self._map = MAP_2
-        self._enemy_spawn_rate: int = 60
-        self._enemy_move_speed: int = 60
 
+        # ------- Map Things
         self._start_tiles = self._find_all_start_tiles()
         self._end_tile = self._find_tile_coordinate('E')
-        self._rng = rng or Random()
-        self._player = Player(SCREEN_WIDTH // 2 - 8, SCREEN_HEIGHT // 2 + 25, self._rng)     
-        self._crosshair = Crosshair()
+        self._enemy_spawn_rate: int = 60
+        self._enemy_move_speed: int = 60
+        self._current_wave: int = 0      # 0 indexed
+        self._enemies_spawned_this_round: int = 0
 
         # get settings
         settings_path = os.path.join(os.path.dirname(__file__), "settings.json")
@@ -34,8 +40,22 @@ class Model:
         self._lives: int = settings["player_lives"]
         self._enemies_per_round: int = settings["enemies_per_round"]
 
+
+    @property
+    def state(self) -> GameState:
+        return self._state
+
+    @property
+    def current_wave(self) -> int:
+        return self._current_wave
+        
+    def start_wave(self):
+        if self._state == GameState.PREPARATION:
+            self._state = GameState.WAVE_ACTIVE
+            self._enemies_spawned_this_round = 0
+
     def _find_tile_coordinate(self, character: str) -> tuple[int, int]:
-        for row_idx, row in enumerate(self._map):
+        for row_idx, row in enumerate(self._level.grid):
             for col_idx, tile in enumerate(row):
                 if tile == character:
                     return (col_idx, row_idx)
@@ -44,7 +64,7 @@ class Model:
 
     def _find_all_start_tiles(self) -> list[tuple[int, int]]:
         start_tiles: list[tuple[int, int]] = []
-        for row_idx, row in enumerate(self._map):
+        for row_idx, row in enumerate(self._level.grid):
             for col_idx, tile in enumerate(row):
                 if tile == 'S':
                     start_tiles.append((col_idx, row_idx))
@@ -77,7 +97,7 @@ class Model:
     
     @property
     def map_data(self) -> MAP_TYPE:
-        return self._map
+        return self._level.grid
     
     @property
     def lives(self) -> int:
@@ -85,13 +105,27 @@ class Model:
     
     def update(self, frame: int):
         self._player.update(self._bullets)
-        self.generate_enemy(frame)
-        self.move_enemy(frame)
         self.move_bullet()
-        self.check_collisions()
+        
+        if self._state == GameState.WAVE_ACTIVE:
+            self.generate_enemy(frame)
+            self.move_enemy(frame)
+            self.check_collisions()
+            self._check_wave_completion()
+            
+        elif self._state == GameState.GAME_OVER:
+            pass
+
+    def _check_wave_completion(self):
+        if self._enemies_spawned_this_round >= self._enemies_per_round and len(self._enemies) == 0:
+            self._state = GameState.PREPARATION
+            self._current_wave += 1
+            if self.current_wave >= len(self._level.waves):
+                self._state = GameState.GAME_OVER
     
     def move_enemy(self, frame: int):
-        if frame % self._enemy_move_speed == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
+        current_wave = self._level.waves[self.current_wave]
+        if frame % current_wave.base_enemy_speed == 0: # enemy movement every 60 frames / 2 seconds (based on specs)
             for enemy in self._enemies[:]:
                 if (enemy.tile_x, enemy.tile_y) == self._end_tile:
                     self._enemies.remove(enemy)
@@ -114,7 +148,8 @@ class Model:
                     next_x, next_y = enemy.tile_x + dx, enemy.tile_y + dy
                     
                     if 0 <= next_x < GRID_WIDTH and 0 <= next_y < GRID_HEIGHT: # bounds of map
-                        if self._map[next_y][next_x] in ['P', 'S', 'E']:
+                        print(next_y)
+                        if self._level.grid[next_y][next_x] in ['P', 'S', 'E']:
                             valid_moves.append((dx, dy))                 
 
                 if valid_moves:
@@ -126,22 +161,24 @@ class Model:
     def move_bullet(self):
         for bullet in self._bullets[:]:
             bullet.update()
-            if (bullet.x < 0 or bullet.x > SCREEN_WIDTH or 
-                bullet.y < 0 or bullet.y > SCREEN_HEIGHT):
+            if (bullet.x < 0 or bullet.x > GAME_WIDTH or 
+                bullet.y < 0 or bullet.y > GAME_HEIGHT):
                 self._bullets.remove(bullet)
 
     def generate_enemy(self, frame: int):
-        if frame % self._enemy_spawn_rate== 0:
+        if self._enemies_spawned_this_round >= self._enemies_per_round:
+            return
+
+        if frame % self._enemy_spawn_rate == 0:
             if not self._start_tiles:
                 return
             
             enemy_color = self._rng.choice(GAME_THEME)
-
-        spawn_tile = self._rng.choice(self._start_tiles)
-        spawn_x, spawn_y = spawn_tile
-        
-        enemy = SimpleEnemy(spawn_x, spawn_y, enemy_color, 0.5)
-        self._enemies.append(enemy)
+            spawn_x, spawn_y = self._rng.choice(self._start_tiles)
+            
+            enemy = SimpleEnemy(spawn_x, spawn_y, enemy_color, 0.5)
+            self._enemies.append(enemy)
+            self._enemies_spawned_this_round += 1
     
     def check_collisions(self):
         for bullet in self._bullets[:]:

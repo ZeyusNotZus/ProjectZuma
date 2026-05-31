@@ -1,4 +1,4 @@
-from configs import PyxelColor, GAME_THEME, ENEMY_SPRITES, TILE_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH
+from configs import PyxelColor, GAME_THEME, ENEMY_SPRITES, TILE_SIZE, GAME_HEIGHT, GAME_WIDTH
 import pyxel
 import math
 from random import Random
@@ -158,12 +158,12 @@ class Player:
         if dx != 0:
             self._x += dx
             # bounds
-            self._x = max(0, min(SCREEN_WIDTH - self._w, self._x))
+            self._x = max(0, min(GAME_WIDTH - self._w, self._x))
                 
         if dy != 0:
             self._y += dy
             # bounds
-            self._y = max(0, min(SCREEN_HEIGHT - self._h, self._y))
+            self._y = max(0, min(GAME_HEIGHT - self._h, self._y))
 
         # shooting
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
@@ -182,7 +182,7 @@ class Player:
 
 
     def draw(self):
-        pyxel.circ(self._x + self._w // 2, self._y + self._h // 2, 6, self._loaded_bullet)
+        pyxel.circ(self._x + self._w // 2, self._y + self._h // 2, 6, self._loaded_bullet.value)
         sprite = int((math.atan2(- pyxel.mouse_y + self._y, - pyxel.mouse_x + self._x) + 17 * math.pi / 8) / (math.pi / 4)) % 8 * 16
 
         pyxel.blt(
@@ -227,3 +227,14 @@ class Crosshair:
     
     def draw(self):
         pyxel.blt(pyxel.mouse_x, pyxel.mouse_y, 0, 0, 48, 16, 16, 0)
+
+class RegeneratorEnemy(Enemy):
+    MOVE_TO_REGEN: int = 5
+    def __init__(self, x: int, y: int, color: PyxelColor, speed: float = 1.0):
+        super().__init__(x, y, color, speed)
+        self._regen_cd = 0
+
+    def move_tile(self, dx: int, dy: int):
+
+        super().move_tile(dx, dy)
+        pass

@@ -1,6 +1,7 @@
-from classes import DrawHandler, UpdateHandler
+from classes import DrawHandler, UpdateHandler, GameState
 from model import Model
 from view import View
+import pyxel
 
 class Controller(UpdateHandler, DrawHandler):
     def __init__(self, model: Model, view: View):
@@ -16,7 +17,12 @@ class Controller(UpdateHandler, DrawHandler):
         self._view.init_window(self, self)
 
     def update(self):
-        if not self._model.is_game_over:
+        # for now SPACE bar ung wave start
+        if pyxel.btnp(pyxel.KEY_SPACE) and self._model.state == GameState.PREPARATION:
+            self._model.start_wave()
+
+        # Update the model
+        if self._model.state != GameState.GAME_OVER:
             self._model.update(self.frame)
             self._frame += 1
 
