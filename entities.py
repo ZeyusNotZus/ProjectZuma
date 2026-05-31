@@ -183,16 +183,8 @@ class Player:
 
 
     def draw(self):
-        sprite_map = {
-        1: 0,
-        2: 16,
-        7: 32,
-        8: 48,
-        9: 64,
-        12: 80 
-        }
-
-        sprite = sprite_map.get(self._loaded_bullet, 0)
+        pyxel.circ(self._x + self._w // 2, self._y + self._h // 2, 6, self._loaded_bullet)
+        sprite = int((math.atan2(- pyxel.mouse_y + self._y, - pyxel.mouse_x + self._x) + 17 * math.pi / 8) / (math.pi / 4)) % 8 * 16
 
         pyxel.blt(
             self._x, self._y, 0,
@@ -224,8 +216,6 @@ class SimpleEnemy(Enemy):
 
 class Crosshair:
     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
-        self._x = pyxel.mouse_x
-        self._y = pyxel.mouse_y
         self._w = w  # size of sprite is 16x16
         self._h = h
     
