@@ -23,7 +23,7 @@ class Ally:
     def update(self):
         ...
 
-    def draw(self):
+    def draw_info(self) -> dict[str, int]:
         ...
 
 class Enemy:
@@ -79,7 +79,7 @@ class Enemy:
         self._tile_y += dy
         self._last_dir = (dx, dy)
 
-    def draw(self):
+    def draw_info(self) -> dict[str, int]:
         ...
     
 class Bullet:
@@ -115,8 +115,24 @@ class Bullet:
         self._x += self._vx
         self._y += self._vy
 
-    def draw(self):
-        pyxel.circ(self._x, self._y, self._size, self._color.value)
+    def draw_info(self) -> dict[str, int]:
+        # pyxel.circ(self._x, self._y, self._size, self._color.value)
+        return {
+            "circ": True,
+            "circ_x": self._x,
+            "circ_y": self._y,
+            "circ_rad": self._size,
+            "circ_col": self._color.value,
+            "blt": False,
+            "x": 0,
+            "y": 0,
+            "img": 0,
+            "u": 0,
+            "v": 0,
+            "w": 0,
+            "h": 0,
+            "colkey": 0 
+        }
 
 class Player:
     def __init__(self, x: float, y: float, rng: Random, cooldown: int = 33, w: int = 16, h: int = 16):
@@ -181,28 +197,61 @@ class Player:
                 self._loaded_bullet = self.get_bullet()
 
 
-    def draw(self):
-        pyxel.circ(self._x + self._w // 2, self._y + self._h // 2, 6, self._loaded_bullet.value)
+    def draw_info(self) -> dict[str, int]:
+        # pyxel.circ(self._x + self._w // 2, self._y + self._h // 2, 6, self._loaded_bullet.value)
         sprite = int((math.atan2(- pyxel.mouse_y + self._y, - pyxel.mouse_x + self._x) + 17 * math.pi / 8) / (math.pi / 4)) % 8 * 16
 
-        pyxel.blt(
-            self._x, self._y, 0,
-            sprite, 0,
-            self._w, self._h, 0
-        )
+        # pyxel.blt(
+        #     self._x, self._y, 0,
+        #     sprite, 0,
+        #     self._w, self._h, 0
+        # )
+        return {
+            "circ": True,
+            "circ_x": self._x + self._w // 2,
+            "circ_y": self._y + self._h // 2,
+            "circ_rad": 6,
+            "circ_col": self._loaded_bullet.value,
+            "blt": True,
+            "x": self._x,
+            "y": self._y,
+            "img": 0,
+            "u": sprite,
+            "v": 0,
+            "w": self._w,
+            "h": self._h,
+            "colkey": 0
+        }
 
 class SimpleEnemy(Enemy):
     def __init__(self, x: int, y: int, color: PyxelColor, speed: float = 1.0):
         super().__init__(x, y, color, speed)
 
-    def draw(self):
+    def draw_info(self) -> dict[str, int]:
         sprite = ENEMY_SPRITES[self._color.value]
 
-        pyxel.blt(
-            self._x, self._y, 0,
-            sprite, 16,
-            self._w, self._h, 0
-        )
+        # pyxel.blt(
+        #     self._x, self._y, 0,
+        #     sprite, 16,
+        #     self._w, self._h, 0
+        # )
+
+        return {
+            "circ": False,
+            "circ_x": 0,
+            "circ_y": 0,
+            "circ_rad": 0,
+            "circ_col": 0,
+            "blt": True,
+            "x": self._x,
+            "y": self._y,
+            "img": 0,
+            "u": sprite,
+            "v": 16,
+            "w": self._w,
+            "h": self._h,
+            "colkey": 0
+        }
 
 # class Crosshair:
 #     def __init__(self, x: float, y: float, w: int = 16, h: int = 16):
@@ -225,8 +274,24 @@ class Crosshair:
         self._w = w  # size of sprite is 16x16
         self._h = h
     
-    def draw(self):
-        pyxel.blt(pyxel.mouse_x, pyxel.mouse_y, 0, 0, 48, 16, 16, 0)
+    def draw_info(self) -> dict[str, int]:
+        # pyxel.blt(pyxel.mouse_x, pyxel.mouse_y, 0, 0, 48, 16, 16, 0)
+        return {
+            "circ": False,
+            "circ_x": 0,
+            "circ_y": 0,
+            "circ_rad": 0,
+            "circ_col": 0,
+            "blt": True,
+            "x": pyxel.mouse_x,
+            "y": pyxel.mouse_y,
+            "img": 0,
+            "u": 0,
+            "v": 48,
+            "w": 16,
+            "h": 16,
+            "colkey": 0 
+        }
 
 class RegeneratorEnemy(Enemy):
     MOVE_TO_REGEN: int = 5

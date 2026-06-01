@@ -1,4 +1,4 @@
-from sympy import randprime
+# from sympy import randprime
 
 import os
 import json
@@ -6,7 +6,7 @@ from random import Random
 
 from configs import GAME_HEIGHT, GAME_WIDTH, MAP_2, MAP_TYPE, GRID_HEIGHT, GRID_WIDTH, GAME_THEME, TILE_SIZE, SPAWN_INTERVAL
 from entities import Bullet, Enemy, Player, Crosshair, SimpleEnemy
-from classes import GameState, DEFAULT_MAP, MapDef
+from classes import GameState, DEFAULT_MAP, MapDef, Drawable
 
 class Model:
     def __init__(self, rng: Random | None = None):
@@ -48,6 +48,20 @@ class Model:
     @property
     def current_wave(self) -> int:
         return self._current_wave
+
+    @property
+    def entities(self) -> list[Drawable]:
+        return [*self._enemies, *self._bullets, self._player, self._crosshair]
+
+    def draw_info(self) -> list[dict[str, int]]:
+        info: list[dict[str, int]] = []
+
+        for entity in self.entities:
+            info.append(
+                entity.draw_info()
+            )
+
+        return info
         
     def start_wave(self):
         if self._state == GameState.PREPARATION:
@@ -132,6 +146,7 @@ class Model:
                     self._lives -= 1
                     if self._lives <= 0:
                         self._is_game_over = True
+                        self._state = GameState.GAME_OVER
                     continue
 
                 valid_moves: list[tuple[int, int]] = []        

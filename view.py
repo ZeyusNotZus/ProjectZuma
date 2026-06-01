@@ -14,7 +14,7 @@ class View:
         pyxel.load("sprites.pyxres")
         pyxel.run(update_handler.update, draw_handler.draw)
 
-    def draw_game(self, model: ModelData):
+    def draw_game(self, entities: list[dict[str, int]], current_wave: int, lives: int, exp: int) -> None:
     #def draw_game(self, exp: int, player, enemies: list, bullets: list, crosshair):
         pyxel.cls(0)
 
@@ -35,29 +35,37 @@ class View:
         #         u, v = tile_sprites.get(tile_type, (0, 32))
         #         pyxel.blt(px, py, 0, u, v, TILE_SIZE, TILE_SIZE)
 
+        # # entities
+        # model.player.draw()
+
+        # enemies = model.enemies
+        # for enemy in enemies:
+        #     enemy.draw()
+        
+        # bullets = model.bullets
+        # for bullet in bullets:
+        #     bullet.draw()
+
+        # # drawing of crosshair
+        # model.crosshair.draw()
+
         pyxel.bltm(0, 0, 0, 0, 0, 16 * 16, 8 * 16) # tile map
         pyxel.bltm(0, 128, 1, 0, 0, 16 * 16, 3 * 16) # bar
 
-        # entities
-        model.player.draw()
+        for entity in entities:
+            if entity["circ"]:
+                pyxel.circ(entity["circ_x"], entity["circ_y"], entity["circ_rad"], entity["circ_col"])
+            if entity["blt"]:
+                pyxel.blt(entity["x"], entity["y"], entity["img"], entity["u"], entity["v"], entity["w"], entity["h"], entity["colkey"])
 
-        enemies = model.enemies
-        for enemy in enemies:
-            enemy.draw()
-        
-        bullets = model.bullets
-        for bullet in bullets:
-            bullet.draw()
 
-        # drawing of crosshair
-        model.crosshair.draw()
+        pyxel.text(203, 138, "ROUND:{:02}".format(current_wave), 5)
+        pyxel.text(203, 146, "LIVES:{:02}".format(lives), 8)
+        pyxel.text(203, 154, "EXP:{:04}".format(exp), 7)
 
-        pyxel.text(203, 138, "ROUND:{:02}".format(model.current_wave), 5)
-        pyxel.text(203, 146, "LIVES:{:02}".format(model.lives), 8)
-        pyxel.text(203, 154, "EXP:{:04}".format(model.exp), 7)
-        
-        if model.state == GameState.PREPARATION:
+    def print_state(self, state: GameState) -> None:
+        if state == GameState.PREPARATION:
             pyxel.text(10, 10, "PREPARATION PHASE", 10)
             pyxel.text(10, 20, "Press SPACE to start wave", 7)
-        elif model.state == GameState.GAME_OVER:
+        elif state == GameState.GAME_OVER:
             pyxel.text(SCREEN_WIDTH//2 - 20, SCREEN_HEIGHT//2, "GAME OVER", 8)

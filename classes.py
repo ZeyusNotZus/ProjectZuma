@@ -7,6 +7,17 @@ from enum import Enum, auto
 
 from entities import Bullet, Crosshair, Enemy, Player, SimpleEnemy
 from configs import MAP_TYPE, MAP_2, GAME_THEME, PyxelColor
+
+
+class GameState(Enum):
+    START_MENU = auto()
+    LEADERBOARD = auto()
+    PREPARATION = auto()
+    WAVE_ACTIVE = auto()
+    PAUSED = auto()
+    GAME_OVER = auto()
+
+
 class ModelData(Protocol):
     @property
     def exp(self) -> int:
@@ -50,20 +61,12 @@ class UpdateHandler(Protocol):
 class DrawHandler(Protocol):
     def draw(self) -> None: ...
 
-class GameState(Enum):
-    START_MENU = auto()
-    LEADERBOARD = auto()
-    PREPARATION = auto()
-    WAVE_ACTIVE = auto()
-    PAUSED = auto()
-    GAME_OVER = auto()
-
-
 
 @dataclass
 class Wave:
     base_enemy_count: int   # IN FRAMES 30 = 1 sec,,,, 60 = 2 secs
     base_enemy_speed: float
+
 
 @dataclass
 class MapDef:
@@ -85,3 +88,8 @@ DEFAULT_MAP = MapDef(
 class GameMode(Enum):
     CAMPAIGN = auto()
     ENDLESS = auto()
+
+
+class Drawable(Protocol):
+    def draw_info() -> dict[str, int]:
+        ...

@@ -1,4 +1,4 @@
-from classes import DrawHandler, UpdateHandler, GameState
+from classes import DrawHandler, UpdateHandler, GameState, Drawable
 from model import Model
 from view import View
 import pyxel
@@ -27,4 +27,6 @@ class Controller(UpdateHandler, DrawHandler):
             self._frame += 1
 
     def draw(self):
-        self._view.draw_game(self._model)
+        self._view.draw_game(self._model.draw_info(), self._model.current_wave, self._model.lives, self._model.exp)
+        self._view.print_state(self._model.state)
+        
